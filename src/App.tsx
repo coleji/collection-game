@@ -1,17 +1,18 @@
 import * as _ from 'lodash'
-import { useMemo } from 'react'
+import { useState } from 'react'
 import Board from './Board';
 
 function App() {
-	const board = useMemo(() => new Board(), []);
+	console.log("Rendering app")
+	const [board, _setBoard] = useState<Board>(new Board());
 
 	return <>
 		<table>
 			<tbody>
-				{board.cards.map(row => {
-					return <tr>
-						{row.map(col => {
-							return <td>{col.sprite()}</td>
+				{board.cards.map((row, i) => {
+					return <tr key={`boardrow_${i}`}>
+						{row.map((col, j) => {
+							return <td key={`boardcol_${j}`}>{col.sprite()}</td>
 						})}
 					</tr>
 				})}

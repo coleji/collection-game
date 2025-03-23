@@ -30,12 +30,14 @@ export default class Card {
 	color: number;
 	fill: number;
 	selected: boolean = false;
+	selectListener: (c: Card) => void;
 
-	constructor(count: number, shape: number, color: number, fill: number) {
+	constructor(count: number, shape: number, color: number, fill: number, selectListener: (c: Card) => void) {
 		this.count = count;
 		this.shape = shape;
 		this.color = color;
 		this.fill = fill;
+		this.selectListener = selectListener;
 	}
 
 	select() {
@@ -75,6 +77,7 @@ export default class Card {
 				top: "-47px"
 			}} onClick={() => {
 				setSelected(!selected)
+				this.selectListener(this);
 			}} />
 		</div>;
 	}
