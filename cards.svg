@@ -78,15 +78,6 @@
    <use xlink:href="#c1" transform="translate(0,-12)"/>
    <use xlink:href="#c1" transform="translate(0, 12)"/>
   </g>
-  <use id="m_a1" transform="translate(16,25) scale(0.25)" xlink:href="#a1"/>
-  <use id="m_b1" transform="translate(16,25) scale(0.25)" xlink:href="#b1"/>
-  <use id="m_c1" transform="translate(16,25) scale(0.25)" xlink:href="#c1"/>
-  <use id="m_a2" transform="translate(16,23) scale(0.25)" xlink:href="#a2"/>
-  <use id="m_b2" transform="translate(16,23) scale(0.25)" xlink:href="#b2"/>
-  <use id="m_c2" transform="translate(16,23) scale(0.25)" xlink:href="#c2"/>
-  <use id="m_a3" transform="translate(16,22) scale(0.25)" xlink:href="#a3"/>
-  <use id="m_b3" transform="translate(16,22) scale(0.25)" xlink:href="#b3"/>
-  <use id="m_c3" transform="translate(16,22) scale(0.25)" xlink:href="#c3"/>
   <g id="o_a1"><use xlink:href="#a1"/><use xlink:href="#m_a1"/><use transform="scale(-1,1)" xlink:href="#m_a1"/><use transform="scale(-1)" xlink:href="#m_a1"/><use transform="scale(1,-1)" xlink:href="#m_a1"/></g>
   <g id="o_b1"><use xlink:href="#b1"/><use xlink:href="#m_b1"/><use transform="scale(-1,1)" xlink:href="#m_b1"/><use transform="scale(-1)" xlink:href="#m_b1"/><use transform="scale(1,-1)" xlink:href="#m_b1"/></g>
   <g id="o_c1"><use xlink:href="#c1"/><use xlink:href="#m_c1"/><use transform="scale(-1,1)" xlink:href="#m_c1"/><use transform="scale(-1)" xlink:href="#m_c1"/><use transform="scale(1,-1)" xlink:href="#m_c1"/></g>
@@ -101,20 +92,15 @@
  </defs>
  <circle cx="0" cy="0" r="99999" fill="#ffffff"/>
  <g id="main">
-  <path d="M 1107.5,963 V 1528 M 1236.5,963 V 1528 M 972,1155 H 1366 M 972,1341 H 1366" stroke-width="1" stroke="#ff9900"/>
-  <g fill="#000000">
+   <g fill="#000000">
    <use xlink:href="#horizontal" transform="translate(1043,961)"/>
    <use xlink:href="#horizontal" transform="translate(1172,961)"/>
    <use xlink:href="#horizontal" transform="translate(1301,961)"/>
-   <text transform="translate(1172,956) scale(1.25,1)" x="0" y="0.6ex">3 &#160; d i f f e r e n t &#160; c o l o u r s</text>
-   <text transform="translate(1043,966) scale(1.25,1)" x="0" y="0.6ex">3 different shadings</text>
-   <text transform="translate(1172,966) scale(1.25,1)" x="0" y="0.6ex">3 different shadings</text>
-   <text transform="translate(1301,966) scale(1.25,1)" x="0" y="0.6ex">3 different shadings</text>
    <use xlink:href="#vertical" transform="translate(970,1062)"/>
    <use xlink:href="#vertical" transform="translate(970,1248)"/>
    <use xlink:href="#vertical" transform="translate(970,1434)"/>
   </g>
-  <g filter="url(#filter_shadow)">
+  <g >
    <g transform="translate(1000,1000)"><use class="noc" xlink:href="#card"/><use class="xi" xlink:href="#o_a1"/></g>
    <g transform="translate(1043,1000)"><use class="noc" xlink:href="#card"/><use class="yi" xlink:href="#o_a1"/></g>
    <g transform="translate(1086,1000)"><use class="noc" xlink:href="#card"/><use class="zi" xlink:href="#o_a1"/></g>
