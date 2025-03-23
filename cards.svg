@@ -92,14 +92,6 @@
  </defs>
  <circle cx="0" cy="0" r="99999" fill="#ffffff"/>
  <g id="main">
-   <g fill="#000000">
-   <use xlink:href="#horizontal" transform="translate(1043,961)"/>
-   <use xlink:href="#horizontal" transform="translate(1172,961)"/>
-   <use xlink:href="#horizontal" transform="translate(1301,961)"/>
-   <use xlink:href="#vertical" transform="translate(970,1062)"/>
-   <use xlink:href="#vertical" transform="translate(970,1248)"/>
-   <use xlink:href="#vertical" transform="translate(970,1434)"/>
-  </g>
   <g >
    <g transform="translate(1000,1000)"><use class="noc" xlink:href="#card"/><use class="xi" xlink:href="#o_a1"/></g>
    <g transform="translate(1043,1000)"><use class="noc" xlink:href="#card"/><use class="yi" xlink:href="#o_a1"/></g>
