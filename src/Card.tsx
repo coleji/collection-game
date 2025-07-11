@@ -1,4 +1,4 @@
-import { JSX, useState } from "react";
+import { JSX } from "react";
 
 export const COUNT = {
 	ONE: 0,
@@ -24,61 +24,44 @@ export const FILL = {
 	FULL: 2
 }
 
-export default class Card {
+export default function Card(props: {
 	count: number;
 	shape: number;
 	color: number;
 	fill: number;
-	selected: boolean = false;
-	selectListener: (c: Card) => void;
+	selected: boolean;
+	onClick: () => void
+}) {
+	const height = "174px"
+	const width = "249px"
 
-	constructor(count: number, shape: number, color: number, fill: number, selectListener: (c: Card) => void) {
-		this.count = count;
-		this.shape = shape;
-		this.color = color;
-		this.fill = fill;
-		this.selectListener = selectListener;
-	}
 
-	select() {
-		this.selected = !this.selected;
-	}
-
-	getCoordinates() {
+	function getCoordinates() {
 		return {
-			row: 3*this.count + this.shape,
-			col: 3*this.color + this.fill
+			row: 3*props.count + props.shape,
+			col: 3*props.color + props.fill
 		}
 	}
 
-	spritePosition(): string {
-		const coords = this.getCoordinates();
+	function spritePosition(): string {
+		const coords = getCoordinates();
 		const px = [-86 + (coords.col * -177), -77 + (coords.row * -255)]
 		return `${px[0]}px ${px[1]}px`;
 	}
 
-	sprite(): JSX.Element {
-		const height = "174px"
-		const width = "249px"
-
-		const [selected, setSelected] = useState(false);
-
-		return <div style={{height, width, margin: "1px 1px",}}>
+	return <div style={{height, width, margin: "1px 1px",}}>
 			<div style={{
 				backgroundImage: "url(/cards.svg)",
 				backgroundSize: "1680px",
-				backgroundPosition: this.spritePosition(),
+				backgroundPosition: spritePosition(),
 				transform: "rotate(90deg)",
 				height: width,
 				width: height,
-				border: selected ? "2px solid red" : "",
+				border: props.selected ? "2px solid red" : "",
 				position: "relative",
 				left: "31px",
 				top: "-47px"
-			}} onClick={() => {
-				setSelected(!selected)
-				this.selectListener(this);
-			}} />
+			}} onClick={props.onClick} />
 		</div>;
-	}
+
 }
