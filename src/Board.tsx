@@ -4,10 +4,16 @@ import Deck, { CardType } from "./Deck";
 import {range} from 'lodash'
 import { clone2dArray } from "./util";
 
-export default function Board() {
-	const COLS: number = 3;
-	const ROWS: number = 4;
+const COLS: number = 4;
+const ROWS: number = 4;
 
+const emptyGrid = range(0, ROWS).map(_ => {
+	return range(0, COLS).map(() => false)
+});
+
+console.log(emptyGrid)
+
+export default function Board() {
 	const [selectedCount, setSelectedCount] = useState(0)
 	
 	const deck = useMemo(() => new Deck(), []);
@@ -24,24 +30,60 @@ export default function Board() {
 		});
 		setCards(newCards)
 		setSelected(newSelected)
+		setTimeout(() => findAllSets(newCards), 20);
+		// range(0, 12).map(deflatten).forEach(s => console.log(s))
 	}, [])
 
-	function checkSet(newSelected: boolean[][]): boolean {
+	function findAllSets(cards: CardType[][]) {
+		var pos: number[] | null = [0,1,2,ROWS * COLS];
+		var count = 0;
+		while (pos != null) {
+			const selected = clone2dArray(emptyGrid);
+			const deflattened = [deflatten(pos[0]), deflatten(pos[1]), deflatten(pos[2])]
+			deflattened.forEach(point => selected[point[0]][point[1]] = true);
+			// console.log(selected)
+			if (checkSet(cards, selected)) {
+				count++;
+			} else {
+				// console.log("not a set: ", deflattened)
+			}
+			pos = stepForward(pos);
+		}
+		console.log("# of sets: " + count)
+	}
+
+	function deflatten(n: number): [number, number] {
+		var col = n % (ROWS-1);
+		var row = Math.floor(n / (COLS))
+		return [row, col];
+	}
+
+	function stepForward(pos: number[]) {
+		const [a, b, c, max] = pos
+		if (c < max-1) return [a, b, c+1, max];
+		else if (b < c-1) {
+			return [a, b+1, b+2, max];
+		} else if (a < b-1) {
+			return [a+1, a+2, a+3, max];
+		} else return null;
+	}
+
+	function checkSet(cards: CardType[][], newSelected: boolean[][]): boolean {
 		const cardsFiltered = cards.map((r, i) => r.filter((e, j) => newSelected[i][j]));
 		const selectedCards = cardsFiltered.flatMap(r => r);
+		// console.log(selectedCards)
 		if (selectedCards.length != 3) return false;
 
-		console.log(selectedCards)
 
 		const colorMatch = compareValues(selectedCards.map(c => c.color))
 		const countMatch = compareValues(selectedCards.map(c => c.count))
 		const fillMatch = compareValues(selectedCards.map(c => c.fill))
 		const shapeMatch = compareValues(selectedCards.map(c => c.shape))
 
-		console.log("colorMatch: ", colorMatch)
-		console.log("countMatch: ", countMatch)
-		console.log("fillMatch: ", fillMatch)
-		console.log("shapeMatch: ", shapeMatch)
+		// console.log("colorMatch: ", colorMatch)
+		// console.log("countMatch: ", countMatch)
+		// console.log("fillMatch: ", fillMatch)
+		// console.log("shapeMatch: ", shapeMatch)
 
 
 		return (
@@ -58,17 +100,29 @@ export default function Board() {
 		const newSelectedCount = selectedCount + (newState ? 1 : -1);
 
 		if (newSelectedCount <= 3) {
-
 			if (newSelectedCount == 3) {
-				const set = checkSet(newSelected);
+				const set = checkSet(cards, newSelected);
 				if (set) {
 					console.log("set!")
+					const newCards = clone2dArray(cards)
+					newSelected.forEach((row, i) => {
+						row.forEach((e, j) => {
+							if (e) {
+								newCards[i][j] = deck.draw();
+								newSelected[i][j] = false;
+							}
+						})
+					})
+					setCards(newCards)
+					setSelectedCount(0)
+					setSelected(newSelected);
+					return;
 				} else {
 					console.log("no set")
 				}
 			}
-			setSelectedCount(newSelectedCount);
 			setSelected(newSelected);
+			setSelectedCount(newSelectedCount);
 		}
 		console.log(newSelectedCount);
 
@@ -82,8 +136,8 @@ export default function Board() {
 			return agg;
 		}, {} as {[K: string]: number});
 		var keys = Object.keys(results);
-		console.log(results)
-		console.log(keys)
+		// console.log(results)
+		// console.log(keys)
 		if (keys.length == 1) return 1;
 		else if (keys.length == v.length) return -1;
 		else return 0;
