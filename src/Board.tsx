@@ -116,6 +116,8 @@ export default function Board() {
 					setCards(newCards)
 					setSelectedCount(0)
 					setSelected(newSelected);
+					console.log(deck.cardsLeft() + " cards left")
+					setTimeout(() => findAllSets(newCards), 20);
 					return;
 				} else {
 					console.log("no set")

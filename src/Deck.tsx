@@ -33,4 +33,8 @@ export default class Deck {
 	draw() {
 		return this.deck[this.head++];
 	}
+
+	cardsLeft() {
+		return this.deck.length - this.head
+	}
 }
