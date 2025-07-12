@@ -5,7 +5,7 @@ import {range} from 'lodash'
 import { clone2dArray } from "./util";
 
 const COLS: number = 4;
-const ROWS: number = 4;
+const ROWS: number = 5;
 
 const emptyGrid = range(0, ROWS).map(_ => {
 	return range(0, COLS).map(() => false)
