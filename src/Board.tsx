@@ -4,8 +4,8 @@ import Deck, { CardType, emptyCard } from "./Deck";
 import _, {range} from 'lodash'
 import { clone2dArray } from "./util";
 
-const COLS: number = 4;
-const ROWS: number = 6;
+const COLS: number = 3;
+const ROWS: number = 4;
 
 const emptyGrid = range(0, ROWS).map(_ => {
 	return range(0, COLS).map(() => false)
@@ -41,7 +41,7 @@ function compareValues(v: number[]): number {
 }
 
 function checkSet(cards: CardType[][], newSelected: boolean[][]): boolean {
-	const cardsFiltered = cards.map((r, i) => r.filter((e, j) => newSelected[i][j]));
+	const cardsFiltered = cards.map((r, i) => r.filter((_e, j) => newSelected[i][j]));
 	const selectedCards = cardsFiltered.flatMap(r => r);
 	if (selectedCards.length != 3) return false;
 	if (selectedCards.filter(c => c.empty).length > 0) return false;
@@ -67,18 +67,19 @@ export default function Board() {
 	const [cardsLeft, setCardsLeft] = useState(0)
 
 	const [availableSets, setAvailableSets] = useState([] as boolean[][][])
-	const [setToShowHint, setSetToShowHint] = useState(null as boolean[][] | null)
+	const [hintIndex, setHintIndex] = useState(0);
 	const [showHint, setShowHint] = useState(false)
 
 	function doShowHint() {
+		setHintIndex((hintIndex+1) % availableSets.length)
 		setShowHint(true)
 	}
 
 	const shuffle = useCallback(() => {
 		if (deck === null) return;
 		const newCards: CardType[][] = []
-		range(0, ROWS).forEach((row, i) => {
-			range(0, COLS).forEach((e, j) => deck.replace(cards[i][j]))
+		range(0, ROWS).forEach((_row, i) => {
+			range(0, COLS).forEach((_e, j) => deck.replace(cards[i][j]))
 		});
 		deck.shuffleRemaining();
 		range(0, ROWS).forEach(row => {
@@ -86,6 +87,7 @@ export default function Board() {
 		});
 		setCards(newCards);
 		setCardsLeft(deck.cardsLeft())
+		setShowHint(false)
 		setTimeout(() => findAllSets(newCards), 20);
 	}, [deck, cards])
 
@@ -117,17 +119,10 @@ export default function Board() {
 			deflattened.forEach(point => selectedInner[point[0]][point[1]] = true);
 			if (checkSet(cards, selectedInner)) {
 				newAvailableSets.push(selectedInner)
-			} else {
-				const deflattenedCards = deflattened.map(d => cards[d[0]][d[1]]);
 			}
 			pos = stepForward(pos);
 		}
-		if (newAvailableSets.length > 0) {
-			setSetToShowHint( newAvailableSets[Math.floor(Math.random()*newAvailableSets.length)])
-		} else {
-			setSetToShowHint(null)
-		}
-		setAvailableSets(newAvailableSets)
+		setAvailableSets(_.shuffle(newAvailableSets))
 		console.log("# of sets: " + count)
 	},[setAvailableSets])
 
@@ -165,6 +160,7 @@ export default function Board() {
 					console.log(deck.cardsLeft() + " cards left")
 					setCardsLeft(deck.cardsLeft())
 					setShowHint(false)
+					setHintIndex(0)
 					setTimeout(() => findAllSets(newCards), 20);
 					return;
 				} else {
@@ -226,9 +222,9 @@ export default function Board() {
 				<td style={{verticalAlign: "top"}}>
 					<button onClick={doShowHint}>Show Hint</button>
 					{showHint && <table><tbody>
-					{_.range(0, ROWS).map((row, i) => {
-						return <tr>{_.range(0, COLS).map((e, j) => {
-							if (setToShowHint && setToShowHint[i][j]) return <td style={{backgroundColor: "red"}}>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+					{_.range(0, ROWS).map((_row, i) => {
+						return <tr>{_.range(0, COLS).map((_e, j) => {
+							if (availableSets[hintIndex] && availableSets[hintIndex][i][j]) return <td style={{backgroundColor: "red"}}>&nbsp;&nbsp;&nbsp;&nbsp;</td>
 							else return <td style={{border: "1px solid black"}}>&nbsp;&nbsp;&nbsp;&nbsp;</td>
 						})}</tr>
 					})}
@@ -238,7 +234,7 @@ export default function Board() {
 			</tr></tbody></table>
 			
 		</>},
-		[cards, selected, availableSets, cardsLeft, onClick, setToShowHint, showHint]
+		[cards, selected, availableSets, cardsLeft, onClick, showHint, hintIndex]
 	);
 
 	return result;
