@@ -1,5 +1,3 @@
-import { JSX } from "react";
-
 export const COUNT = {
 	ONE: 0,
 	TWO: 1,

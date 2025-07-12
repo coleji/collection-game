@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Card from "./Card";
 import Deck, { CardType, emptyCard } from "./Deck";
-import {range} from 'lodash'
-import { clone2dArray, shuffleArrayAfterIndex } from "./util";
+import _, {range} from 'lodash'
+import { clone2dArray } from "./util";
 
 const COLS: number = 4;
 const ROWS: number = 6;
@@ -64,8 +64,15 @@ export default function Board() {
 	const [cards, setCards] = useState([] as CardType[][])
 	const [selected, setSelected] = useState([] as boolean[][])
 
-	const [numberSets, setNumberSets] = useState(0)
 	const [cardsLeft, setCardsLeft] = useState(0)
+
+	const [availableSets, setAvailableSets] = useState([] as boolean[][][])
+	const [setToShowHint, setSetToShowHint] = useState(null as boolean[][] | null)
+	const [showHint, setShowHint] = useState(false)
+
+	function doShowHint() {
+		setShowHint(true)
+	}
 
 	const shuffle = useCallback(() => {
 		if (deck === null) return;
@@ -103,20 +110,26 @@ export default function Board() {
 	const findAllSets = useCallback((cards: CardType[][]) => {
 		var pos: number[] | null = [0,1,2,ROWS * COLS];
 		var count = 0;
+		var newAvailableSets = [];
 		while (pos != null) {
 			const selectedInner = clone2dArray(emptyGrid);
 			const deflattened = [deflatten(pos[0]), deflatten(pos[1]), deflatten(pos[2])]
 			deflattened.forEach(point => selectedInner[point[0]][point[1]] = true);
 			if (checkSet(cards, selectedInner)) {
-				count++;
+				newAvailableSets.push(selectedInner)
 			} else {
 				const deflattenedCards = deflattened.map(d => cards[d[0]][d[1]]);
 			}
 			pos = stepForward(pos);
 		}
-		setNumberSets(count)
+		if (newAvailableSets.length > 0) {
+			setSetToShowHint( newAvailableSets[Math.floor(Math.random()*newAvailableSets.length)])
+		} else {
+			setSetToShowHint(null)
+		}
+		setAvailableSets(newAvailableSets)
 		console.log("# of sets: " + count)
-	},[setNumberSets])
+	},[setAvailableSets])
 
 
 	const onClick = useCallback((i: number, j: number) => () => {
@@ -151,6 +164,7 @@ export default function Board() {
 					setSelected(newSelected);
 					console.log(deck.cardsLeft() + " cards left")
 					setCardsLeft(deck.cardsLeft())
+					setShowHint(false)
 					setTimeout(() => findAllSets(newCards), 20);
 					return;
 				} else {
@@ -178,35 +192,53 @@ export default function Board() {
 			empty={true}
 			onClick={() => {}}
 		/>;
+
 		return <>
-			<table>
-				<tbody>
-					{cards.map((row, i) => {
-						return <tr key={`boardrow_${i}`}>
-							{row.map((col, j) => {
-								return <td key={`boardcol_${j}`}>{col.empty ? empty : <Card
-									count={col.count}
-									shape={col.shape}
-									color={col.color}
-									fill={col.fill}
-									selected={selected[i][j]}
-									empty={false}
-									onClick={onClick(i, j)}
-								/>}</td>
+			<table><tbody><tr>
+				<td>
+					<table>
+						<tbody>
+							{cards.map((row, i) => {
+								return <tr key={`boardrow_${i}`}>
+									{row.map((col, j) => {
+										return <td key={`boardcol_${j}`}>{col.empty ? empty : <Card
+											count={col.count}
+											shape={col.shape}
+											color={col.color}
+											fill={col.fill}
+											selected={selected[i][j]}
+											empty={false}
+											onClick={onClick(i, j)}
+										/>}</td>
+									})}
+								</tr>
 							})}
-						</tr>
+						</tbody>
+					</table>
+					<button onClick={shuffle}>Shuffle</button>
+					<br />
+					<br />
+					Number of sets: {availableSets.length}
+					<br />
+					<br />
+					Cards left: {cardsLeft}
+				</td>
+				<td style={{verticalAlign: "top"}}>
+					<button onClick={doShowHint}>Show Hint</button>
+					{showHint && <table><tbody>
+					{_.range(0, ROWS).map((row, i) => {
+						return <tr>{_.range(0, COLS).map((e, j) => {
+							if (setToShowHint && setToShowHint[i][j]) return <td style={{backgroundColor: "red"}}>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+							else return <td style={{border: "1px solid black"}}>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+						})}</tr>
 					})}
-				</tbody>
-			</table>
-			<button onClick={shuffle}>Shuffle</button>
-			<br />
-			<br />
-			Number of sets: {numberSets}
-			<br />
-			<br />
-			Cards left: {cardsLeft}
+					</tbody></table>}
+
+				</td>
+			</tr></tbody></table>
+			
 		</>},
-		[cards, selected, numberSets, cardsLeft, onClick]
+		[cards, selected, availableSets, cardsLeft, onClick, setToShowHint, showHint]
 	);
 
 	return result;
