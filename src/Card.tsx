@@ -30,6 +30,7 @@ export default function Card(props: {
 	color: number;
 	fill: number;
 	selected: boolean;
+	empty: boolean
 	onClick: () => void
 }) {
 	const height = "174px"
@@ -49,7 +50,21 @@ export default function Card(props: {
 		return `${px[0]}px ${px[1]}px`;
 	}
 
-	return <div style={{height, width, margin: "1px 1px",}}>
+	if (props.empty) {
+		return <div style={{height, width, margin: "1px 1px",}}>
+			<div style={{
+				backgroundPosition: spritePosition(),
+				transform: "rotate(90deg)",
+				height: width,
+				width: height,
+				border: "",
+				position: "relative",
+				left: "31px",
+				top: "-47px"
+			}} />
+		</div>;
+	} else {
+		return <div style={{height, width, margin: "1px 1px",}}>
 			<div style={{
 				backgroundImage: "url(/cards.svg)",
 				backgroundSize: "1680px",
@@ -63,5 +78,5 @@ export default function Card(props: {
 				top: "-47px"
 			}} onClick={props.onClick} />
 		</div>;
-
+	}
 }

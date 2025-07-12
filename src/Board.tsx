@@ -1,18 +1,18 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Card from "./Card";
-import Deck, { CardType } from "./Deck";
+import Deck, { CardType, emptyCard } from "./Deck";
 import {range} from 'lodash'
-import { clone2dArray } from "./util";
+import { clone2dArray, shuffleArrayAfterIndex } from "./util";
 
 const COLS: number = 4;
-const ROWS: number = 5;
+const ROWS: number = 6;
 
 const emptyGrid = range(0, ROWS).map(_ => {
 	return range(0, COLS).map(() => false)
 });
 
 function deflatten(n: number): [number, number] {
-	var col = n % (ROWS-1);
+	var col = n % COLS;
 	var row = Math.floor(n / (COLS))
 	return [row, col];
 }
@@ -35,8 +35,6 @@ function compareValues(v: number[]): number {
 		return agg;
 	}, {} as {[K: string]: number});
 	var keys = Object.keys(results);
-	// console.log(results)
-	// console.log(keys)
 	if (keys.length == 1) return 1;
 	else if (keys.length == v.length) return -1;
 	else return 0;
@@ -45,20 +43,14 @@ function compareValues(v: number[]): number {
 function checkSet(cards: CardType[][], newSelected: boolean[][]): boolean {
 	const cardsFiltered = cards.map((r, i) => r.filter((e, j) => newSelected[i][j]));
 	const selectedCards = cardsFiltered.flatMap(r => r);
-	// console.log(selectedCards)
 	if (selectedCards.length != 3) return false;
+	if (selectedCards.filter(c => c.empty).length > 0) return false;
 
 
 	const colorMatch = compareValues(selectedCards.map(c => c.color))
 	const countMatch = compareValues(selectedCards.map(c => c.count))
 	const fillMatch = compareValues(selectedCards.map(c => c.fill))
 	const shapeMatch = compareValues(selectedCards.map(c => c.shape))
-
-	// console.log("colorMatch: ", colorMatch)
-	// console.log("countMatch: ", countMatch)
-	// console.log("fillMatch: ", fillMatch)
-	// console.log("shapeMatch: ", shapeMatch)
-
 
 	return (
 		colorMatch != 0 && countMatch != 0 && fillMatch != 0 && shapeMatch != 0
@@ -74,6 +66,21 @@ export default function Board() {
 
 	const [numberSets, setNumberSets] = useState(0)
 	const [cardsLeft, setCardsLeft] = useState(0)
+
+	const shuffle = useCallback(() => {
+		if (deck === null) return;
+		const newCards: CardType[][] = []
+		range(0, ROWS).forEach((row, i) => {
+			range(0, COLS).forEach((e, j) => deck.replace(cards[i][j]))
+		});
+		deck.shuffleRemaining();
+		range(0, ROWS).forEach(row => {
+			newCards[row] = range(0, COLS).map(() => deck.draw())
+		});
+		setCards(newCards);
+		setCardsLeft(deck.cardsLeft())
+		setTimeout(() => findAllSets(newCards), 20);
+	}, [deck, cards])
 
 	useEffect(() => {
 		const newDeck = new Deck();
@@ -100,11 +107,10 @@ export default function Board() {
 			const selectedInner = clone2dArray(emptyGrid);
 			const deflattened = [deflatten(pos[0]), deflatten(pos[1]), deflatten(pos[2])]
 			deflattened.forEach(point => selectedInner[point[0]][point[1]] = true);
-			// console.log(selected)
 			if (checkSet(cards, selectedInner)) {
 				count++;
 			} else {
-				// console.log("not a set: ", deflattened)
+				const deflattenedCards = deflattened.map(d => cards[d[0]][d[1]]);
 			}
 			pos = stepForward(pos);
 		}
@@ -130,7 +136,12 @@ export default function Board() {
 					newSelected.forEach((row, i) => {
 						row.forEach((e, j) => {
 							if (e) {
-								newCards[i][j] = deck.draw();
+								if (deck.canDraw()) {
+									newCards[i][j] = deck.draw();
+								} else {
+									newCards[i][j] = emptyCard;
+								}
+								
 								newSelected[i][j] = false;
 							}
 						})
@@ -158,26 +169,37 @@ export default function Board() {
 		// console.log(selectedCount)
 		// console.log(cards)
 		// console.log(selected)
+		const empty = <Card
+			count={-1}
+			shape={-1}
+			color={-1}
+			fill={-1}
+			selected={false}
+			empty={true}
+			onClick={() => {}}
+		/>;
 		return <>
 			<table>
 				<tbody>
 					{cards.map((row, i) => {
 						return <tr key={`boardrow_${i}`}>
 							{row.map((col, j) => {
-								const card = <Card
+								return <td key={`boardcol_${j}`}>{col.empty ? empty : <Card
 									count={col.count}
 									shape={col.shape}
 									color={col.color}
 									fill={col.fill}
 									selected={selected[i][j]}
+									empty={false}
 									onClick={onClick(i, j)}
-								/>
-								return <td key={`boardcol_${j}`}>{card}</td>
+								/>}</td>
 							})}
 						</tr>
 					})}
 				</tbody>
 			</table>
+			<button onClick={shuffle}>Shuffle</button>
+			<br />
 			<br />
 			Number of sets: {numberSets}
 			<br />
